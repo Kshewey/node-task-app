@@ -20,6 +20,20 @@ router.post('/users', async (req, res) => {
         res.status(400).send(error)
     }
 })
+
+// endpoint for user logging in
+
+router.post('/users/login', async(req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.email, req.body.password) 
+        res.send(user)
+    } catch (error) {
+        res.status(400).send()
+    }
+
+
+
+})
 //endpoint for getting all users
 router.get('/users', async(req, res) => {
     try {
