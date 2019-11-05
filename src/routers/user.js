@@ -31,10 +31,12 @@ router.post('/users/login', async(req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password) 
         const token = await user.generateAuthToken()
-        res.send( {user, token})
+        res.send( { user, token})
     } catch (error) {
         res.status(400).send()
     }
+
+    
 
 
 
@@ -63,29 +65,15 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     }
 })
 //endpoint for getting profile of user currently logged in
-router.get('/users/me', auth ,async(req, res) => {
-  res.send(req.user)
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
 })
 
 
-//endpoint for getting a user by it's ID
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params._id
-
-    try {
-        const user = await User.findById(_id)
-        if(!user) {
-            return res.status(404).send()
-        }
-        res.send(user)
-    } catch (error) {
-        res.status(500).send(error)
-    }
-})
 
 //endpoint for updating a user by it's ID
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name' , 'email', 'password', 'age']
     const updateIsValid =  updates.every((update) => allowedUpdates.includes(update))
@@ -95,20 +83,17 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate(req.params.id)
 
         updates.forEach((update) => {
-            user[update] = req.body[update]
+            req.user[update] = req.body[update]
         })
 
-        await user.save()
+        await req.user.save()
 
         // const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true})
         
-        if (!user) {
-            return res.status(404).send()
-        }
-        res.send(user) 
+        
+        res.send(req.user) 
     } catch (error) {
         res.status(400).send(error)
     }
@@ -116,14 +101,12 @@ router.patch('/users/:id', async (req, res) => {
 
 
 // endpoint to delete user
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/me', auth, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id)
+       
 
-        if (!user) {
-            return res.status(404).send()
-        }
-        res.send(user)
+        req.user.remove()
+        res.send(req.user)
     } catch (error) {
         res.status(400).send(error)
     }
