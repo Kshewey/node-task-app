@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
 
-// model for a task (JavaScript constructor function) - invoke this to make a new user
-const Task = mongoose.model("Task", {
+
+
+const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         trim: true,
@@ -14,7 +15,14 @@ const Task = mongoose.model("Task", {
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        require: true
+        require: true,
+        ref: 'User'
     }
-})
+}, {
+    timestamps: true
+}
+    
+)
+// model for a task (JavaScript constructor function) - invoke this to make a new user
+const Task = mongoose.model("Task", taskSchema)
 module.exports = Task
